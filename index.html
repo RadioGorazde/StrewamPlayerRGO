@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radio Goražde</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e6f2ff;
+            color: #333;
+            text-align: center;
+            padding: 20px;
+            margin: 0;
+        }
+        h1 {
+            color: #007acc;
+        }
+        .player-container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            max-width: 400px;
+            margin: 0 auto;
+            border: 2px solid #007acc;
+        }
+        audio {
+            width: 100%;
+            margin-top: 10px;
+        }
+        .note {
+            font-size: 14px;
+            color: #666;
+            margin-top: 15px;
+        }
+        button {
+            background-color: #007acc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #005fa3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Radio Goražde</h1>
+    <div class="player-container">
+        <p>Radio će pokušati automatski da pusti. Ako ne uspe, kliknite na dugme ispod.</p>
+        <audio id="radioPlayer" autoplay muted>
+            <source src="http://195.222.33.217:8024/;;" type="audio/mpeg">
+            Vaš pregledač ne podržava audio plejer.
+        </audio>
+        <button id="playButton" style="display:none;">Pusti radio</button>
+        <p class="note">Ako imate problema s reprodukcijom, proverite vašu internet konekciju.</p>
+    </div>
+
+    <script>
+        const audioPlayer = document.getElementById('radioPlayer');
+        const playButton = document.getElementById('playButton');
+
+        // Pokušaj automatske reprodukcije
+        window.addEventListener('load', () => {
+            audioPlayer.muted = false; // Uklanja mute nakon učitavanja
+            audioPlayer.play().then(() => {
+                console.log("Autoplay uspešan!");
+            }).catch(error => {
+                console.log("Autoplay nije uspeo:", error);
+                playButton.style.display = "inline-block"; // Prikaži dugme ako autoplay ne uspe
+            });
+        });
+
+        // Ručno pokretanje reprodukcije
+        playButton.addEventListener('click', () => {
+            audioPlayer.play().then(() => {
+                playButton.style.display = "none"; // Sakrij dugme nakon uspeha
+                console.log("Reprodukcija pokrenuta ručno.");
+            }).catch(error => {
+                console.error("Greška pri ručnom pokretanju reprodukcije:", error);
+                alert("Reprodukcija nije moguća. Proverite konekciju ili pregledač.");
+            });
+        });
+    </script>
+</body>
+</html>
