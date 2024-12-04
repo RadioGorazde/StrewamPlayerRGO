@@ -5,86 +5,153 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Radio Goražde</title>
     <style>
+        /* Osnovni stil za telo stranice */
         body {
             font-family: Arial, sans-serif;
-            background-color: #e6f2ff;
+            background-color: #f0f8ff;
             color: #333;
             text-align: center;
-            padding: 20px;
             margin: 0;
+            padding: 0;
         }
+
         h1 {
-            color: #007acc;
+            color: #1e90ff;
+            font-size: 3rem;
+            margin-top: 50px;
         }
-        .player-container {
-            background-color: #ffffff;
+
+        p {
+            font-size: 1.2rem;
+            margin: 20px 0;
+        }
+
+        /* Stil za audio player */
+        #radioPlayer {
+            width: 80%;
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #fff;
             border-radius: 8px;
+            border: 2px solid #1e90ff;
+            padding: 15px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            max-width: 400px;
-            margin: 0 auto;
-            border: 2px solid #007acc;
         }
-        audio {
-            width: 100%;
-            margin-top: 10px;
-        }
-        .note {
-            font-size: 14px;
-            color: #666;
-            margin-top: 15px;
-        }
-        button {
-            background-color: #007acc;
+
+        /* Stil za dugme */
+        #playButton, #stopButton, #muteButton, #volumeControl {
+            background-color: #1e90ff;
             color: white;
-            border: none;
             padding: 10px 20px;
+            font-size: 1.2rem;
+            border: none;
             border-radius: 5px;
-            font-size: 16px;
             cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s;
         }
-        button:hover {
-            background-color: #005fa3;
+
+        /* Stil za hover efekat */
+        #playButton:hover, #stopButton:hover, #muteButton:hover {
+            background-color: #4682b4;
+        }
+
+        #volumeControl {
+            margin-top: 15px;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        /* Stil za container */
+        .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* Stil za mute dugme */
+        #muteButton {
+            background-color: #ff6347;
+        }
+
+        /* Stil za stop dugme */
+        #stopButton {
+            background-color: #32cd32;
         }
     </style>
 </head>
 <body>
-    <h1>Radio Goražde</h1>
-    <div class="player-container">
-        <p>Radio će pokušati automatski da pusti. Ako ne uspe, kliknite na dugme ispod.</p>
-        <audio id="radioPlayer" autoplay muted>
-            <source src="http://195.222.33.217:8024/;;" type="audio/mpeg">
-            Vaš pregledač ne podržava audio plejer.
+    <div class="container">
+        <h1>slušate Radio Goražde!</h1>
+        <p>Poslušajte nas klikom na dugme ispod:</p>
+
+        <!-- Audio player -->
+        <audio id="radioPlayer">
+            <source src="http://195.222.33.217:8024/;" type="audio/mp3">
+            Vaš pregledač ne podržava audio tag.
         </audio>
-        <button id="playButton" style="display:none;">Pusti radio</button>
-        <p class="note">Ako imate problema s reprodukcijom, proverite vašu internet konekciju.</p>
+
+        <!-- Dugme za pokretanje audio playera -->
+        <button id="playButton" onclick="playRadio()">Slušaj Radio</button>
+
+        <!-- Dugme za zaustavljanje radio streama -->
+        <button id="stopButton" onclick="stopRadio()" disabled>Stop Radio</button>
+
+        <!-- Dugme za mute/unmute -->
+        <button id="muteButton" onclick="toggleMute()">Mute</button>
+
+        <!-- Kontrola za volumen -->
+        <input type="range" id="volumeControl" min="0" max="1" step="0.01" value="1" onchange="adjustVolume(this.value)">
     </div>
 
     <script>
-        const audioPlayer = document.getElementById('radioPlayer');
-        const playButton = document.getElementById('playButton');
+        var player = document.getElementById('radioPlayer');
+        var playButton = document.getElementById('playButton');
+        var stopButton = document.getElementById('stopButton');
+        var muteButton = document.getElementById('muteButton');
+        var volumeControl = document.getElementById('volumeControl');
 
-        // Pokušaj automatske reprodukcije
-        window.addEventListener('load', () => {
-            audioPlayer.muted = false; // Uklanja mute nakon učitavanja
-            audioPlayer.play().then(() => {
-                console.log("Autoplay uspešan!");
-            }).catch(error => {
-                console.log("Autoplay nije uspeo:", error);
-                playButton.style.display = "inline-block"; // Prikaži dugme ako autoplay ne uspe
-            });
-        });
+        // Funkcija koja pokreće radio stream kada korisnik klikne na dugme
+        function playRadio() {
+            if (player.paused) {
+                player.play().then(function() {
+                    playButton.disabled = true;  // Onemogućava dugme nakon klika
+                    stopButton.disabled = false;  // Omogućava dugme za stop
+                    console.log("Radio je pokrenuto!");
+                }).catch(function(error) {
+                    console.log("Došlo je do greške:", error);
+                    alert("Greška prilikom pokretanja radio strima!");
+                });
+            } else {
+                alert("Radio već svira!");
+            }
+        }
 
-        // Ručno pokretanje reprodukcije
-        playButton.addEventListener('click', () => {
-            audioPlayer.play().then(() => {
-                playButton.style.display = "none"; // Sakrij dugme nakon uspeha
-                console.log("Reprodukcija pokrenuta ručno.");
-            }).catch(error => {
-                console.error("Greška pri ručnom pokretanju reprodukcije:", error);
-                alert("Reprodukcija nije moguća. Proverite konekciju ili pregledač.");
-            });
-        });
+        // Funkcija koja zaustavlja radio stream
+        function stopRadio() {
+            player.pause();
+            player.currentTime = 0;  // Resetuje audio
+            playButton.disabled = false;  // Omogućava dugme za play
+            stopButton.disabled = true;  // Onemogućava dugme za stop
+        }
+
+        // Funkcija koja uključuje/isključuje mute
+        function toggleMute() {
+            if (player.muted) {
+                player.muted = false;
+                muteButton.textContent = "Mute";
+            } else {
+                player.muted = true;
+                muteButton.textContent = "Unmute";
+            }
+        }
+
+        // Funkcija koja podešava volumen
+        function adjustVolume(value) {
+            player.volume = value;
+        }
     </script>
 </body>
 </html>
