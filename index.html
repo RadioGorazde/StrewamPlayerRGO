@@ -1,128 +1,139 @@
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bs">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Radio Player</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f8ff;
-            color: #333;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-        }
-
-        h1 {
-            color: #1e90ff;
-            font-size: 3rem;
-            margin-top: 50px;
-        }
-
-        .player-container {
-            width: 80%;
-            max-width: 600px;
-            margin: 20px auto;
-            background-color: white;
-            border-radius: 8px;
-            border: 2px solid #1e90ff;
-            padding: 15px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        button {
-            background-color: #1e90ff;
-            color: white;
-            padding: 10px 20px;
-            font-size: 1.2rem;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 20px;
-            transition: background-color 0.3s;
-        }
-
-        button:hover {
-            background-color: #4682b4;
-        }
-
-        #volumeControl {
-            margin-top: 15px;
-            width: 100%;
-            max-width: 600px;
-        }
-
-        #stopButton {
-            background-color: #32cd32;
-        }
-
-        #muteButton {
-            background-color: #ff6347;
-        }
-
-        #playButton {
-            background-color: #1e90ff;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Radio Goražde</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #0f2027;
+      background: linear-gradient(to right, #2c5364, #203a43, #0f2027);
+      font-family: 'Segoe UI', sans-serif;
+    }
+    #radio-player {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(15px);
+      border-radius: 18px;
+      padding: 12px 18px;
+      max-width: 500px;
+      width: 100%;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      transition: all 0.3s ease-in-out;
+    }
+    .control-button {
+      background: #66ccff;
+      border: none;
+      border-radius: 12px;
+      color: white;
+      font-size: 20px;
+      width: 45px;
+      height: 45px;
+      box-shadow: 0 0 12px rgba(102, 204, 255, 0.6), inset 0 0 6px white;
+      transition: all 0.25s ease-in-out;
+      cursor: pointer;
+    }
+    .control-button:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 16px rgba(102, 204, 255, 0.8), 0 0 4px white;
+    }
+    .bar {
+      width: 6px;
+      background: linear-gradient(to top, #66ccff, #aeefff);
+      border-radius: 3px;
+      position: relative;
+      animation: bounce 1s infinite ease-in-out;
+    }
+    .bar::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 5px;
+      height: 5px;
+      background-color: white;
+      border-radius: 50%;
+      opacity: 0;
+      animation: peakFlash 1s infinite ease-in-out;
+    }
+    .bar:nth-child(2) { animation-delay: 0.1s; }
+    .bar:nth-child(3) { animation-delay: 0.2s; }
+    .bar:nth-child(4) { animation-delay: 0.3s; }
+    .bar:nth-child(5) { animation-delay: 0.4s; }
+    .bars.paused .bar {
+      animation: none;
+      height: 12px;
+    }
+    .bars.paused .bar::after {
+      animation: none;
+      opacity: 0;
+    }
+    @keyframes bounce {
+      0%, 100% { height: 12px; }
+      50% { height: 28px; }
+    }
+    @keyframes peakFlash {
+      0%, 100% { opacity: 0; }
+      50% { opacity: 1; }
+    }
+    #info {
+      position: absolute;
+      bottom: 10px;
+      text-align: center;
+      color: #aeefff;
+      font-size: 13px;
+    }
+  </style>
 </head>
 <body>
-    <h1>Radio Goražde uživo</h1>
-    <div class="player-container">
-        <audio id="radioPlayer">
-            <source src="https://tinyurl.com/RadioGorazde" type="audio/mp3">
-            Vaš pregledač ne podržava audio tag.
-        </audio>
-
-        <button id="playButton" onclick="playRadio()">Slušaj radio</button>
-        <button id="stopButton" onclick="stopRadio()" disabled>Zaustavi radio</button>
-        <button id="muteButton" onclick="toggleMute()">Mute</button>
-
-        <input type="range" id="volumeControl" min="0" max="1" step="0.01" value="1" onchange="adjustVolume(this.value)">
+  <div id="radio-player">
+    <div style="flex: 1;">
+      <img src="logo.png" alt="Radio Goražde Logo" style="height: 60px; width: auto;">
     </div>
-
-    <script>
-        var player = document.getElementById('radioPlayer');
-        var playButton = document.getElementById('playButton');
-        var stopButton = document.getElementById('stopButton');
-        var muteButton = document.getElementById('muteButton');
-        var volumeControl = document.getElementById('volumeControl');
-
-        function playRadio() {
-            // Provera da li je audio već pokrenut
-            if (player.paused) {
-                player.play().then(function() {
-                    playButton.disabled = true;  // Onemogući dugme za Play
-                    stopButton.disabled = false;  // Omogući dugme za Stop
-                }).catch(function(error) {
-                    console.log("Došlo je do greške pri pokretanju:", error);
-                    alert("Greška pri pokušaju pokretanja radio strima.");
-                });
-            } else {
-                alert("Tvoj radio već igra!");  // Ako je radio već aktivan
-            }
-        }
-
-        function stopRadio() {
-            player.pause();  // Pauzira radio
-            player.currentTime = 0;  // Resetuje audio na početak
-            playButton.disabled = false;  // Omogući dugme za Play
-            stopButton.disabled = true;  // Onemogući dugme za Stop
-        }
-
-        function toggleMute() {
-            if (player.muted) {
-                player.muted = false;  // Otkucaj mute
-                muteButton.textContent = "Mute";
-            } else {
-                player.muted = true;  // Uključi mute
-                muteButton.textContent = "Unmute";
-            }
-        }
-
-        function adjustVolume(value) {
-            player.volume = value;  // Podesi volumen
-        }
-    </script>
+    <div style="flex: 2; display: flex; flex-direction: column; align-items: center; gap: 10px;">
+      <div id="soundBars" class="bars paused" style="display: flex; gap: 4px; height: 30px; align-items: flex-end;">
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+      </div>
+      <div style="display: flex; gap: 12px;">
+        <button onclick="playRadio()" class="control-button">▶</button>
+        <button onclick="stopRadio()" class="control-button">⏹</button>
+      </div>
+    </div>
+    <audio id="radioPlayer">
+      <source src="http://195.222.33.217:8024/;" type="audio/mpeg">
+    </audio>
+  </div>
+  <div id="info">Sa vama od 1970 godine</div>
+  <script>
+    const player = document.getElementById('radioPlayer');
+    const bars = document.getElementById('soundBars');
+    function playRadio() {
+      player.play().then(() => {
+        bars.classList.remove('paused');
+      }).catch(e => {
+        alert("Ne mogu pokrenuti stream.");
+      });
+    }
+    function stopRadio() {
+      player.pause();
+      player.currentTime = 0;
+      bars.classList.add('paused');
+    }
+  </script>
 </body>
 </html>
